@@ -53,9 +53,9 @@ export const TWIKOO_ENVID = '';        // 评论后端地址，留空 = 不显�
 
 ### 2.1 更换头像
 
-默认头像 `public/avatar.svg` 是一张终端风插画。换成自己的照片或图片：
+当前头像 `public/avatar.jpg`。换成自己的照片或图片：
 
-1. 把图片放入 `public/`（建议 160×160 以上、正方形），如 `public/avatar.png`
+1. 用同名新图覆盖 `public/avatar.jpg`（建议 160×160 以上、正方形；用其他文件名则同步改 `Profile.astro` 的引用）
 2. 打开 `src/components/Profile.astro`，把第 12 行改为：
    ```html
    <img class="avatar" src={withBase('/avatar.png')} alt="作者头像" width="72" height="72" />

@@ -49,7 +49,7 @@ draft: false        # true 则构建时隐藏
 
 - **站点信息**：改 `src/site.config.ts`（标题、作者、签名、描述、社交链接、仓库地址）
 - **评论（Twikoo）**：在 `src/site.config.ts` 填 `TWIKOO_ENVID` 为你的后端地址，留空则不渲染评论
-- **头像**：替换 `public/avatar.svg`（或换成你的图片路径，改 `src/components/Profile.astro`）
+- **头像**：覆盖 `public/avatar.jpg`（或换成你的图片路径，改 `src/components/Profile.astro`）
 - **配色与字体**：改 `src/styles/global.css` 顶部的 CSS 变量
 
 ## 评论系统（Twikoo）
