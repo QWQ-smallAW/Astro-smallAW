@@ -2,7 +2,7 @@ export const SITE = {
   title: 'smallAW\'s Blog',
   subtitle: '记录、折腾、思考',
   author: 'smallAW',
-  signature: '把折腾变成文字，把文字变成沉淀。',
+  signature: 'Life is not out to get you',
   description: 'smallAW 的 stdout —— 漏洞复现、工具折腾、题解与碎碎念，偶尔 404。',
   repo: 'https://github.com/QWQ-smallAW/Astro-smallAW',
   postDir: 'content/blog',
