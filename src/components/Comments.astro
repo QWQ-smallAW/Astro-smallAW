@@ -118,6 +118,19 @@ const enabled = Boolean(TWIKOO_ENVID);
     io.observe(el);
   }
 
+  // Twikoo 只在脚本首次加载时注入一次 <style data-twikoo>（全部评论样式的载体）。
+  // View Transitions 换页会清掉运行时注入的样式标签 → 第二次进入文章页评论裸奔。
+  // 对策：换页前暂存这些样式节点，换页后把丢失的放回 <head>
+  let twikooStyles = [];
+  document.addEventListener('astro:before-swap', () => {
+    twikooStyles = [...document.querySelectorAll('style[data-twikoo]')];
+  });
+  document.addEventListener('astro:after-swap', () => {
+    for (const s of twikooStyles) {
+      if (!document.head.contains(s)) document.head.appendChild(s);
+    }
+  });
+
   mount();
   document.addEventListener('astro:page-load', mount);
 </script>

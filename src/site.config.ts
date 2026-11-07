@@ -1,5 +1,5 @@
 export const SITE = {
-  title: 'term.log',
+  title: 'smallAW\'s Blog',
   subtitle: '记录、折腾、思考',
   author: 'smallAW',
   signature: '把折腾变成文字，把文字变成沉淀。',
