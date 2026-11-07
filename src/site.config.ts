@@ -3,7 +3,7 @@ export const SITE = {
   subtitle: '记录、折腾、思考',
   author: 'smallAW',
   signature: 'Life is not out to get you',
-  description: 'smallAW 的 stdout —— 漏洞复现、工具折腾、题解与碎碎念，偶尔 404。',
+  description: "每次说'最后再调一次'，通常都是第 47 次。这里存放跑通的和没跑通的。",
   repo: 'https://github.com/QWQ-smallAW/Astro-smallAW',
   postDir: 'content/blog',
 };
