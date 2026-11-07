@@ -7,6 +7,7 @@ tags:
   - 整活
   - OI
 ---
+
 ## 前言
 
 第一次做这种东西，还挺累的。
@@ -25,7 +26,7 @@ candy.cpp
 //	freopen("candy.out", "w", stdout);
 ```
 query.cpp（整个文件只有这两个字符）
-```
+```cpp
 //
 ```
 sale.cpp（没错，它没有freopen）

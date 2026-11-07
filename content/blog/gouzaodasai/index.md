@@ -2,13 +2,13 @@
 title: 别样的构造大赛
 date: 2025-08-28
 updated: 2025-08-28
-categories: 整活
 description: 一天，矩阵群给我打来电话。他说：“你敢不敢和我举行 OI 比赛？”
 tags:
   - OI
   - 整活
   - 构造
 ---
+
 
 <!-- more -->
 

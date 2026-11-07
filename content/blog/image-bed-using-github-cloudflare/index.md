@@ -1,14 +1,14 @@
 ---
 title: 【实战】利用 Github + Cloudflare 搭建自己的图床
-date: 2026-4-6
-updated: 2026-4-12
-categories: 项目实战
+date: 2026-04-06
+updated: 2026-04-12
 description: 实际不难
 tags:
   - 图床
   - Github
   - Cloudflare
 ---
+
 
 首先，你得准备一个 [Github](www.github.com) 和一个 [Cloudflare](https://dash.cloudflare.com/) 账号
 <!-- more -->
@@ -193,7 +193,7 @@ async function ADD(envadd) {
 事到如今，你已经可以在你的 Github 仓库存放图片了，然后通过
 `https://[你的 Worker 域名/[文件夹]/[图片名称].[扩展名访]问它了`
 
-# 使用 PicGo 上传工具（可选）
+## 使用 PicGo 上传工具（可选）
 
 首先，你得下载一个 [PicGo](https://github.com/Molunerfinn/PicGo/releases) 软件，根据安装向导安装即可。
 
