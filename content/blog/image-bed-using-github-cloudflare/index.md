@@ -9,9 +9,7 @@ tags:
   - Cloudflare
 ---
 
-
 首先，你得准备一个 [Github](www.github.com) 和一个 [Cloudflare](https://dash.cloudflare.com/) 账号
-<!-- more -->
 
 ## 创建 Github 仓库
 
