@@ -1,0 +1,27 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { collectTags, tagSlug, withBase } from '../../utils';
+
+const posts = await getCollection('blog');
+const tags = [...collectTags(posts).entries()];
+---
+
+<BaseLayout title="标签" description="按标签浏览文章">
+  <section class="hero" style="padding-bottom: 0;">
+    <p class="prompt-line">
+      <span class="user">you@blog</span><span class="punct">:~$</span>
+      <span class="cmd">ls ./tags --group</span>
+    </p>
+    <h1>标签<span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <div class="section-head">$ grep -c tag</div>
+  <div class="tag-cloud reveal">
+    {tags.map(([tag, count]) => (
+      <a class="tag" href={withBase(`/tags/${tagSlug(tag)}/`)}>
+        {tag}<span class="count">×{count}</span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

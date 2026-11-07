@@ -1,0 +1,76 @@
+---
+// Twikoo 评论：仅文章页渲染；envId 未配置时不输出任何内容
+import { TWIKOO_ENVID } from '../site.config';
+const enabled = Boolean(TWIKOO_ENVID);
+---
+
+{
+  enabled ? (
+    <section class="comments" data-env-id={TWIKOO_ENVID}>
+      <div class="section-head">$ tail -f ./comments.log</div>
+      <div id="tcomment" />
+    </section>
+  ) : import.meta.env.DEV ? (
+    <p class="search-empty">twikoo 评论未启用：在 src/site.config.ts 的 TWIKOO_ENVID 填入后端地址。</p>
+  ) : (
+    <Fragment />
+  )
+}
+
+<script>
+  // 脚本只执行一次；靠 astro:page-load 在 View Transitions 换页后重新挂载到新容器
+  // 注意：Astro 的 <script> 不会做模板插值，envId 必须经 data-env-id 属性传递（属性值由 Astro 自动转义）
+  const CDN = 'https://cdn.jsdelivr.net/npm/twikoo@1.6.45/twikoo.all.min.js';
+
+  function mount() {
+    const el = document.getElementById('tcomment');
+    if (!el) return;
+    const ENVID = el.closest('.comments')?.getAttribute('data-env-id') ?? '';
+    if (!ENVID) return;
+
+    const init = () => {
+      try {
+        (window as any).twikoo?.init({ envId: ENVID, el: '#tcomment' });
+      } catch (err) {
+        console.error('[twikoo] init failed:', err);
+      }
+    };
+
+    // twikoo 已就绪（换页回来），直接挂载
+    if ((window as any).twikoo) {
+      init();
+      return;
+    }
+
+    // 惰性加载：评论区进入视口再拉脚本
+    const io = new IntersectionObserver(
+      (entries, obs) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        obs.disconnect();
+        if (document.getElementById('twikoo-js')) {
+          // 已在加载中，等它就绪
+          const timer = setInterval(() => {
+            if ((window as any).twikoo) {
+              clearInterval(timer);
+              init();
+            }
+          }, 200);
+          return;
+        }
+        const s = document.createElement('script');
+        s.id = 'twikoo-js';
+        s.src = CDN;
+        s.async = true;
+        s.crossOrigin = 'anonymous';
+        s.onload = init;
+        s.onerror = () => console.error('[twikoo] 脚本加载失败，检查网络或 CDN');
+        document.head.appendChild(s);
+      },
+      { rootMargin: '300px' }
+    );
+    io.observe(el);
+  }
+
+  mount();
+  document.addEventListener('astro:page-load', mount);
+</script>

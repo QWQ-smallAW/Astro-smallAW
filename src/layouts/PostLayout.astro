@@ -1,0 +1,76 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import SidebarToc from '../components/SidebarToc.astro';
+import Comments from '../components/Comments.astro';
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, readingTime, withBase, tagSlug } from '../utils';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  headings: { depth: number; slug: string; text: string }[];
+  prev?: { slug: string; title: string };
+  next?: { slug: string; title: string };
+}
+
+const { post, headings, prev, next } = Astro.props;
+const { title, date, tags, description } = post.data;
+---
+
+<BaseLayout title={title} description={description}>
+  <Fragment slot="sidebar">
+    <SidebarToc headings={headings} />
+  </Fragment>
+  <article>
+    <header class="article-header">
+      <p class="prompt-line">
+        <span class="user">you@blog</span><span class="punct">:~$</span>
+        <span class="cmd">cat posts/{post.id}.md</span>
+      </p>
+      <h1>{title}</h1>
+      <div class="article-meta">
+        <span class="date">{formatDate(date)}</span>
+        <span>·</span>
+        <span>{readingTime(post.body ?? '')}</span>
+        {tags.length > 0 && <span>·</span>}
+      </div>
+      {tags.length > 0 && (
+        <div class="tag-row">
+          {tags.map((t) => (
+            <a class="tag" href={withBase(`/tags/${tagSlug(t)}/`)}>{t}</a>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <div class="article-body">
+      <div class="prose">
+        <slot />
+      </div>
+    </div>
+
+    <nav class="post-nav" aria-label="文章导航">
+      <div>
+        {prev && (
+          <a href={withBase(`/posts/${prev.slug}/`)}>
+            <span class="label">&lt;- prev</span>
+            {prev.title}
+          </a>
+        )}
+      </div>
+      <div style="text-align: right;">
+        {next && (
+          <a href={withBase(`/posts/${next.slug}/`)}>
+            <span class="label">next -&gt;</span>
+            {next.title}
+          </a>
+        )}
+      </div>
+    </nav>
+
+    <Comments />
+
+    <p class="back-home">
+      <a href={withBase('/')}>$ cd ~</a>
+    </p>
+  </article>
+</BaseLayout>

@@ -1,0 +1,156 @@
+---
+// 全站搜索浮层：放大镜触发，覆盖当前页，背景模糊
+---
+
+<div id="search-overlay" class="search-overlay" hidden>
+  <div class="search-backdrop"></div>
+  <div class="search-panel" role="dialog" aria-modal="true" aria-label="站内搜索">
+    <div class="search-bar">
+      <span class="prefix" aria-hidden="true">$</span>
+      <input
+        id="search-input"
+        type="search"
+        placeholder="搜索文章…"
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <kbd>esc</kbd>
+    </div>
+    <div id="search-results" class="search-results" aria-live="polite"></div>
+    <p id="search-status" class="search-status">输入关键词开始检索 · Ctrl/⌘ + K 随时唤起</p>
+  </div>
+</div>
+
+<script>
+  // Pagefind 实例与加载状态跨页面保持（模块脚本只执行一次）
+  let pagefind: any = null;
+  let loading: Promise<void> | null = null;
+
+  const overlay = () => document.getElementById('search-overlay');
+  const input = () => document.getElementById('search-input') as HTMLInputElement | null;
+  const results = () => document.getElementById('search-results');
+  const status = () => document.getElementById('search-status');
+
+  async function ensurePagefind() {
+    if (pagefind || loading) return;
+    loading = (async () => {
+      try {
+        const url = `${import.meta.env.BASE_URL}pagefind/pagefind.js`;
+        pagefind = await import(/* @vite-ignore */ url);
+        await pagefind.search('');
+      } catch {
+        const s = status();
+        if (s) s.textContent = '搜索索引未找到——索引在 npm run build 时生成，请先构建。';
+      }
+    })();
+  }
+
+  function open() {
+    const ov = overlay();
+    if (!ov) return;
+    ov.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    ensurePagefind();
+    const i = input();
+    i?.focus();
+    i?.select();
+  }
+
+  function close() {
+    const ov = overlay();
+    if (!ov || ov.hidden) return;
+    ov.hidden = true;
+    document.documentElement.style.overflow = '';
+  }
+
+  document.addEventListener('click', (e) => {
+    const t = e.target as Element | null;
+    if (!t?.closest) return;
+    if (t.closest('#search-open')) {
+      e.preventDefault();
+      open();
+    } else if (t.closest('.search-backdrop')) {
+      close();
+    } else if (t.closest('#search-overlay a')) {
+      close(); // 点击结果后正常跳转，浮层收起
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      overlay()?.hidden ? open() : close();
+    } else if (e.key === 'Escape') {
+      close();
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      moveActive(e.key === 'ArrowDown' ? 1 : -1);
+    } else if (e.key === 'Enter') {
+      const active = results()?.querySelector('.result.active a') as HTMLAnchorElement | null;
+      active?.click();
+    }
+  });
+
+  document.addEventListener('input', (e) => {
+    if ((e.target as Element)?.id !== 'search-input') return;
+    clearTimeout((window as any).__smTimer);
+    (window as any).__smTimer = setTimeout(
+      () => run((e.target as HTMLInputElement).value.trim()),
+      160
+    );
+  });
+
+  let items: HTMLElement[] = [];
+  let activeIndex = -1;
+
+  function setActive(next: number) {
+    items.forEach((el) => el.classList.remove('active'));
+    if (next >= 0 && next < items.length) {
+      activeIndex = next;
+      items[next].classList.add('active');
+      items[next].scrollIntoView({ block: 'nearest' });
+    } else {
+      activeIndex = -1;
+    }
+  }
+
+  function moveActive(delta: number) {
+    const ov = overlay();
+    if (!ov || ov.hidden || items.length === 0) return;
+    setActive(activeIndex < 0 ? (delta > 0 ? 0 : items.length - 1) : (activeIndex + delta + items.length) % items.length);
+  }
+
+  async function run(query: string) {
+    const box = results();
+    const s = status();
+    if (!box || !s) return;
+    if (!pagefind) {
+      await loading;
+      if (!pagefind) return;
+    }
+    box.innerHTML = '';
+    items = [];
+    activeIndex = -1;
+    if (!query) {
+      s.textContent = '输入关键词开始检索 · Ctrl/⌘ + K 随时唤起';
+      return;
+    }
+    const res = await pagefind.search(query);
+    s.textContent = res.results.length ? `找到 ${res.results.length} 条结果` : `没有与 "${query}" 相关的结果`;
+    for (const r of res.results.slice(0, 20)) {
+      const data = await r.data();
+      const item = document.createElement('article');
+      item.className = 'result';
+      const h = document.createElement('h3');
+      const a = document.createElement('a');
+      a.href = data.url;
+      a.textContent = data.meta.title ?? data.url;
+      h.appendChild(a);
+      const p = document.createElement('p');
+      p.className = 'excerpt';
+      p.innerHTML = data.excerpt;
+      item.append(h, p);
+      box.appendChild(item);
+      items.push(item);
+    }
+  }
+</script>

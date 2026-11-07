@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostItem from '../components/PostItem.astro';
+import { sortPosts, withBase } from '../utils';
+import { SITE } from '../site.config';
+
+const posts = sortPosts(await getCollection('blog')).slice(0, 10);
+---
+
+<BaseLayout>
+  <section class="hero">
+    <p class="prompt-line">
+      <span class="user">you@blog</span><span class="punct">:~$</span>
+      <span class="cmd">whoami</span>
+    </p>
+    <h1>
+      <span class="dim">~/</span>{SITE.title} <span class="ok">— {SITE.subtitle}</span><span class="cursor" aria-hidden="true"></span>
+    </h1>
+    <p>{SITE.description}</p>
+  </section>
+
+  <div class="section-head">$ ls ./posts</div>
+  <ul class="post-list">
+    {posts.map((post) => <PostItem post={post} />)}
+  </ul>
+  <p class="back-home">
+    <a href={withBase('/archive/')}>$ ls ./archive --all</a>
+  </p>
+</BaseLayout>

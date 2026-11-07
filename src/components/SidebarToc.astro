@@ -1,0 +1,65 @@
+---
+// 文章目录：仅文章页渲染，插在左侧栏资料卡下方
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+const { headings = [] } = Astro.props as { headings?: Heading[] };
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  toc.length > 0 && (
+    <nav class="toc-sidebar" aria-label="文章目录">
+      <div class="toc-title">// 目录</div>
+      <ul class="toc-list">
+        {toc.map((h) => (
+          <li class={h.depth === 2 ? 'depth-1' : 'depth-2'}>
+            <a href={`#${h.slug}`}>{h.text}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<script>
+  // 当前章节高亮（滚动监听 + rAF 节流；View Transitions 换页后重新初始化）
+  let cleanup: (() => void) | null = null;
+
+  function initSpy() {
+    cleanup?.();
+    cleanup = null;
+
+    const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc-sidebar a')];
+    if (links.length === 0) return;
+    const byId = new Map(links.map((l) => [l.getAttribute('href')!.slice(1), l]));
+    const heads = [...document.querySelectorAll<HTMLElement>('.prose h2[id], .prose h3[id]')];
+    if (heads.length === 0) return;
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const mark = window.innerHeight * 0.28;
+      let current = heads[0].id;
+      for (const h of heads) {
+        if (h.getBoundingClientRect().top <= mark) current = h.id;
+      }
+      links.forEach((l) => l.classList.toggle('active', l.hash === `#${current}`));
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    update();
+    cleanup = () => window.removeEventListener('scroll', onScroll);
+  }
+
+  initSpy();
+  document.addEventListener('astro:page-load', initSpy);
+</script>

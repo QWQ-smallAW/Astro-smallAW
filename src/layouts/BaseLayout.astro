@@ -1,0 +1,143 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import SearchModal from '../components/SearchModal.astro';
+import Profile from '../components/Profile.astro';
+import { SITE } from '../site.config';
+import { withBase } from '../utils';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = SITE.description } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE.title}` : `${SITE.title} — ${SITE.subtitle}`;
+
+const pathname = Astro.url.pathname;
+const isActive = (path: string) =>
+  (path === '/' && (pathname === withBase('/') || pathname === withBase(''))) ||
+  (path !== '/' && pathname.startsWith(withBase(path)));
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href={withBase('/favicon.svg')} />
+    <link rel="alternate" type="application/rss+xml" title={SITE.title} href={withBase('/rss.xml')} />
+    <title>{pageTitle}</title>
+    <script is:inline>
+      // 首帧前应用主题，避免闪烁
+      (() => {
+        const stored = localStorage.getItem('theme');
+        const theme =
+          stored ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <ClientRouter />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a class="site-logo" href={withBase('/')}>
+          <span class="prompt-char">$</span>
+          <span class="path">~/{SITE.title}</span>
+        </a>
+        <nav class="site-nav" aria-label="主导航">
+          <a href={withBase('/')} aria-current={isActive('/') ? 'true' : undefined}>首页</a>
+          <a href={withBase('/archive/')} aria-current={isActive('/archive') ? 'true' : undefined}>归档</a>
+          <a href={withBase('/tags/')} aria-current={isActive('/tags') ? 'true' : undefined}>标签</a>
+          <a href={withBase('/about/')} aria-current={isActive('/about') ? 'true' : undefined}>关于</a>
+        </nav>
+        <div class="header-actions">
+          <button class="icon-btn" id="search-open" type="button" aria-label="站内搜索（Ctrl+K）" title="搜索（Ctrl+K）">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+            </svg>
+          </button>
+          <button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换主题">dark</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout container">
+      <aside class="sidebar">
+        <Profile />
+        <slot name="sidebar" />
+      </aside>
+      <main class="content">
+        <slot />
+      </main>
+    </div>
+
+    <SearchModal />
+
+    <footer class="site-footer">
+      <div class="container">
+        <span>© {new Date().getFullYear()} {SITE.author}</span>
+        <span>
+          <a href={withBase('/rss.xml')}>rss</a>
+          <span> · </span>
+          <a href={SITE.repo} target="_blank" rel="noopener">source</a>
+          <span> · powered by astro</span>
+        </span>
+      </div>
+    </footer>
+
+    <script>
+      // 主题切换（事件委托：View Transitions 换页后按钮被替换，监听必须挂在 document 上）
+      const applyLabel = () => {
+        const btn = document.getElementById('theme-toggle');
+        const cur = document.documentElement.dataset.theme;
+        if (btn) btn.textContent = cur === 'dark' ? 'light' : 'dark';
+      };
+      applyLabel();
+
+      document.addEventListener('click', (e) => {
+        const target = e.target as Element | null;
+        if (!target?.closest?.('#theme-toggle')) return;
+        const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        applyLabel();
+      });
+
+      // View Transitions 换页后恢复主题与按钮文案
+      document.addEventListener('astro:after-swap', () => {
+        const stored = localStorage.getItem('theme');
+        document.documentElement.dataset.theme =
+          stored ?? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        applyLabel();
+      });
+
+      // 滚动渐入
+      const reveal = () => {
+        const els = document.querySelectorAll('.reveal:not(.visible)');
+        if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          els.forEach((el) => el.classList.add('visible'));
+          return;
+        }
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) {
+              if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                io.unobserve(e.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.05 }
+        );
+        els.forEach((el) => io.observe(el));
+      };
+      reveal();
+      document.addEventListener('astro:page-load', reveal);
+    </script>
+  </body>
+</html>

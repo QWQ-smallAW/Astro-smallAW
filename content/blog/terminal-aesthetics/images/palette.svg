@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 220" role="img">
+  <title>终端风配色示例</title>
+  <rect x="0" y="0" width="680" height="220" rx="12" fill="#0c1016"/>
+  <rect x="0" y="0" width="680" height="44" rx="12" fill="#11161e"/>
+  <rect x="0" y="32" width="680" height="12" fill="#11161e"/>
+  <circle cx="24" cy="22" r="6" fill="#f87171"/>
+  <circle cx="44" cy="22" r="6" fill="#fbbf24"/>
+  <circle cx="64" cy="22" r="6" fill="#4ade80"/>
+  <text x="88" y="22" dominant-baseline="central" font-family="monospace" font-size="13" fill="#8b98a5">theme.css</text>
+  <text x="40" y="90" dominant-baseline="central" font-family="monospace" font-size="14" fill="#c9d4de">--bg:      <tspan fill="#4ade80">#0c1016</tspan>   // 深灰蓝，不是纯黑</text>
+  <text x="40" y="120" dominant-baseline="central" font-family="monospace" font-size="14" fill="#c9d4de">--fg:      <tspan fill="#4ade80">#c9d4de</tspan>   // 柔和浅灰，不是纯白</text>
+  <text x="40" y="150" dominant-baseline="central" font-family="monospace" font-size="14" fill="#c9d4de">--accent:  <tspan fill="#4ade80">#4ade80</tspan>   // 强调色只给重点</text>
+  <text x="40" y="185" font-family="monospace" font-size="13" fill="#5c6873">// 对比度：背景 8:1，正文 12:1（WCAG AA）</text>
+</svg>

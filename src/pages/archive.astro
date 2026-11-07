@@ -1,0 +1,41 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { sortPosts, formatDate, withBase } from '../utils';
+
+const posts = sortPosts(await getCollection('blog'));
+const byYear = new Map<number, typeof posts>();
+for (const p of posts) {
+  const y = p.data.date.getFullYear();
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(p);
+}
+---
+
+<BaseLayout title="归档" description="全部文章按年份归档">
+  <section class="hero" style="padding-bottom: 0;">
+    <p class="prompt-line">
+      <span class="user">you@blog</span><span class="punct">:~$</span>
+      <span class="cmd">ls -lt ./posts --recursive</span>
+    </p>
+    <h1>归档<span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  {posts.length === 0 && <p class="search-empty">（还没有文章，去 content/blog 里写一篇吧）</p>}
+
+  {[...byYear.entries()].map(([year, list]) => (
+    <section class="archive-group reveal">
+      <h2 class="archive-year">
+        {year} <span class="count">({list.length})</span>
+      </h2>
+      <ul class="archive-list">
+        {list.map((post) => (
+          <li>
+            <span class="date">{formatDate(post.data.date)}</span>
+            <a href={withBase(`/posts/${post.id}/`)}>{post.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</BaseLayout>

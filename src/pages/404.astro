@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../utils';
+---
+
+<BaseLayout title="404" description="页面不存在">
+  <section class="hero">
+    <div class="terminal-block reveal">
+      <p style="margin: 0;">
+        <span class="user">you@blog</span><span class="punct">:~$</span>
+        <span class="cmd">open {Astro.url.pathname}</span>
+      </p>
+      <p style="margin: 0;" class="err">
+        bash: {Astro.url.pathname}: No such file or directory
+      </p>
+      <p style="margin: 0;">
+        <span class="user">you@blog</span><span class="punct">:~$</span>
+        <span class="cmd">_</span>
+        <span class="cursor" aria-hidden="true"></span>
+      </p>
+    </div>
+    <h1 style="margin-top: 1.5rem;">404 · 页面走丢了</h1>
+    <p>你访问的路径不存在，可能已被移动或删除。</p>
+    <p class="back-home" style="margin-top: 1.2rem;">
+      <a href={withBase('/')}>$ cd ~ &amp;&amp; ls</a>
+    </p>
+  </section>
+</BaseLayout>

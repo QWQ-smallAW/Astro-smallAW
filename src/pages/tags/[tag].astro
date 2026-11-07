@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostItem from '../../components/PostItem.astro';
+import { sortPosts, collectTags, tagSlug } from '../../utils';
+
+export async function getStaticPaths() {
+  const posts = sortPosts(await getCollection('blog'));
+  const tags = collectTags(posts);
+  return [...tags.keys()].map((tag) => ({
+    params: { tag: tagSlug(tag) },
+    props: {
+      tag,
+      posts: posts.filter((p) => p.data.tags.includes(tag)),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout title={`#${tag}`} description={`标签「${tag}」下的所有文章`}>
+  <section class="hero" style="padding-bottom: 0;">
+    <p class="prompt-line">
+      <span class="user">you@blog</span><span class="punct">:~$</span>
+      <span class="cmd">grep -r "#{tag}" ./posts</span>
+    </p>
+    <h1><span class="ok">#</span>{tag}<span class="cursor" aria-hidden="true"></span></h1>
+  </section>
+
+  <div class="section-head">$ ls ./posts | wc -l → {posts.length}</div>
+  <ul class="post-list">
+    {posts.map((post) => <PostItem post={post} />)}
+  </ul>
+</BaseLayout>

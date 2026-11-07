@@ -1,0 +1,22 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, withBase, tagSlug } from '../utils';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, date, tags, description } = post.data;
+---
+
+<li class="post-item reveal">
+  <div class="meta">
+    <span class="date">{formatDate(date)}</span>
+    {tags.map((t) => <span>#{t}</span>)}
+  </div>
+  <h2>
+    <a href={withBase(`/posts/${post.id}/`)}>{title}</a>
+  </h2>
+  {description && <p class="desc">{description}</p>}
+</li>
