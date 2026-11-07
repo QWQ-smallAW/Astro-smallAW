@@ -20,17 +20,81 @@ const enabled = Boolean(TWIKOO_ENVID);
 <script>
   // 脚本只执行一次；靠 astro:page-load 在 View Transitions 换页后重新挂载到新容器
   // 注意：Astro 的 <script> 不会做模板插值，envId 必须经 data-env-id 属性传递（属性值由 Astro 自动转义）
-  const CDN = 'https://cdn.jsdelivr.net/npm/twikoo@1.6.45/twikoo.all.min.js';
+  // 版本必须与后端主版本一致（后端为 Twikoo 2.0.13，见 Netlify 部署）——
+  // 跨大版本（如 1.6 客户端 + 2.x 后端）会导致登录后的管理面板样式错乱
+  const TWIKOO_VERSION = '2.0.13';
+  const CDNS = [
+    `https://cdn.jsdelivr.net/npm/twikoo@${TWIKOO_VERSION}/dist/twikoo.all.min.js`,
+    `https://unpkg.com/twikoo@${TWIKOO_VERSION}/dist/twikoo.all.min.js`,
+  ];
+  // 防重复初始化：mount 会被 astro:page-load 与直接调用各触发一次，
+  // 刷新时滚动恢复 + 脚本命中缓存可能让两个 IntersectionObserver 都在脚本就绪后回调，重复 init
+  const inited = new WeakSet<Element>();
+
+  // Netlify 部署的后端实际 API 在 /.netlify/functions/twikoo，
+  // 根路径只对浏览器 GET 跳转，XHR POST 会 404 —— 这里自动补全
+  function normalizeEnvId(raw) {
+    let url = raw.trim().replace(/\/+$/, '');
+    if (/\.netlify\.app(\/|$)/.test(url) && !url.includes('/.netlify/functions/')) {
+      url += '/.netlify/functions/twikoo';
+    }
+    return url;
+  }
+
+  function loadScript(idx, onload, onerror) {
+    if (idx >= CDNS.length) {
+      console.error('[twikoo] 所有 CDN 均加载失败，检查网络或更换版本');
+      return;
+    }
+    if (document.getElementById('twikoo-js')) {
+      onload();
+      return;
+    }
+    const s = document.createElement('script');
+    s.id = 'twikoo-js';
+    s.src = CDNS[idx];
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    let settled = false;
+    const giveUp = () => {
+      if (settled) return;
+      settled = true;
+      s.remove();
+      document.getElementById('twikoo-js')?.remove();
+      loadScript(idx + 1, onload, onerror);
+    };
+    // 看门狗：部分 CDN 故障时不报 error 而是挂起，8 秒无结果就切下一个源
+    const watchdog = setTimeout(() => {
+      if (!(window as any).twikoo) giveUp();
+    }, 8000);
+    s.onload = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(watchdog);
+      onload();
+    };
+    s.onerror = () => {
+      clearTimeout(watchdog);
+      giveUp();
+    };
+    document.head.appendChild(s);
+  }
 
   function mount() {
     const el = document.getElementById('tcomment');
     if (!el) return;
-    const ENVID = el.closest('.comments')?.getAttribute('data-env-id') ?? '';
-    if (!ENVID) return;
+    const raw = el.closest('.comments')?.getAttribute('data-env-id') ?? '';
+    if (!raw) return;
+    const ENVID = normalizeEnvId(raw);
 
     const init = () => {
+      // 脚本未就绪时（另一观察器抢先调用）直接返回且【不标记】，
+      // 等脚本 onload 后的真正 init；否则会永久阻塞挂载
+      if (!(window as any).twikoo) return;
+      if (inited.has(el)) return;
+      inited.add(el);
       try {
-        (window as any).twikoo?.init({ envId: ENVID, el: '#tcomment' });
+        (window as any).twikoo.init({ envId: ENVID, el: '#tcomment' });
       } catch (err) {
         console.error('[twikoo] init failed:', err);
       }
@@ -47,24 +111,7 @@ const enabled = Boolean(TWIKOO_ENVID);
       (entries, obs) => {
         if (!entries.some((e) => e.isIntersecting)) return;
         obs.disconnect();
-        if (document.getElementById('twikoo-js')) {
-          // 已在加载中，等它就绪
-          const timer = setInterval(() => {
-            if ((window as any).twikoo) {
-              clearInterval(timer);
-              init();
-            }
-          }, 200);
-          return;
-        }
-        const s = document.createElement('script');
-        s.id = 'twikoo-js';
-        s.src = CDN;
-        s.async = true;
-        s.crossOrigin = 'anonymous';
-        s.onload = init;
-        s.onerror = () => console.error('[twikoo] 脚本加载失败，检查网络或 CDN');
-        document.head.appendChild(s);
+        loadScript(0, init);
       },
       { rootMargin: '300px' }
     );

@@ -75,7 +75,7 @@ draft: false        # true 则构建时隐藏
 - 评论 envId 经 `data-env-id` 属性传递（Astro 自动转义），脚本中不拼接任何用户可控字符串
 - 搜索摘要来自 Pagefind 构建期生成（仅包含站主自己写的 Markdown），无用户注入面
 - 外部链接均带 `rel="noopener"`；`robots.txt` 为动态路由，sitemap 地址跟随 `SITE` 配置
-- Twikoo 脚本版本锁定 `twikoo@1.6.45`，升级时同步更新 `Comments.astro` 中的 CDN 地址
+- Twikoo 前端脚本版本锁定 `twikoo@2.0.13`（在 `Comments.astro` 的 `TWIKOO_VERSION` 常量），**必须与后端主版本一致**——后端升级时同步修改此常量；版本错位（如 1.x 客户端 + 2.x 后端）会导致登录后管理面板样式错乱
 
 ## 部署
 
