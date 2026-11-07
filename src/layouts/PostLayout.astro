@@ -13,7 +13,12 @@ interface Props {
 }
 
 const { post, headings, prev, next } = Astro.props;
-const { title, date, tags, description } = post.data;
+const { title, date, updated, tags, description } = post.data;
+
+// 过时提示：以 updated（无则回退到发布日期）距构建时间超过 7 天为准
+const lastMod = updated ?? date;
+const STALE_MS = 7 * 24 * 60 * 60 * 1000;
+const isStale = Date.now() - lastMod.getTime() > STALE_MS;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -29,6 +34,9 @@ const { title, date, tags, description } = post.data;
       <h1>{title}</h1>
       <div class="article-meta">
         <span class="date">{formatDate(date)}</span>
+        {updated && updated.getTime() !== date.getTime() && (
+          <><span>·</span><span class="date">更新于 {formatDate(updated)}</span></>
+        )}
         <span>·</span>
         <span>{readingTime(post.body ?? '')}</span>
         {tags.length > 0 && <span>·</span>}
@@ -41,6 +49,13 @@ const { title, date, tags, description } = post.data;
         </div>
       )}
     </header>
+
+    {isStale && (
+      <div class="stale-notice" role="note">
+        <span class="mark">[!]</span> 本文最后更新于 {formatDate(lastMod)}，距今已超过 7
+        天，内容可能已经过时，请酌情参考。
+      </div>
+    )}
 
     <div class="article-body">
       <div class="prose">

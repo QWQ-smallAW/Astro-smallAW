@@ -8,6 +8,7 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string().optional(),
     date: z.coerce.date(),
+    updated: z.coerce.date().optional(), // 最新更新日期；超过 7 天文章头部会显示过时提示
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),

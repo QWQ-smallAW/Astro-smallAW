@@ -700,6 +700,24 @@ img {
   font-size: 0.85rem;
 }
 
+/* ---------- 过时提示 ---------- */
+
+.stale-notice {
+  margin: 1.5rem 0 0;
+  padding: 0.75rem 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: #d9a53f;
+  background: color-mix(in srgb, #d9a53f 10%, var(--bg-elevated));
+  border: 1px solid color-mix(in srgb, #d9a53f 45%, transparent);
+  border-left: 3px solid #d9a53f;
+  border-radius: var(--radius);
+}
+.stale-notice .mark {
+  font-weight: 700;
+}
+
 /* ---------- Twikoo 评论 ---------- */
 
 .comments {
