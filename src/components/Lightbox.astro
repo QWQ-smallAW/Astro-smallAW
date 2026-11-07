@@ -1,0 +1,74 @@
+---
+// 全站图片灯箱：点击 .prose 内的图片放大预览，Esc / 点击任意处关闭
+// 样式在 global.css（运行时交互组件统一放全局样式）
+---
+
+<div class="lightbox" id="lightbox" hidden>
+  <span class="lb-tag" aria-hidden="true"></span>
+  <figure>
+    <img alt="" />
+    <figcaption hidden></figcaption>
+  </figure>
+</div>
+
+<script>
+  const lb = () => document.getElementById('lightbox');
+  let lastFocus: Element | null = null;
+
+  function open(src: string, alt: string) {
+    const el = lb();
+    const img = el?.querySelector('img');
+    if (!el || !img) return;
+    img.src = src;
+    img.alt = alt;
+    const cap = el.querySelector('figcaption');
+    if (cap) {
+      cap.textContent = alt;
+      cap.hidden = !alt;
+    }
+    const tag = el.querySelector('.lb-tag');
+    if (tag) tag.textContent = `$ open ${src.split('/').pop() ?? ''}`;
+    lastFocus = document.activeElement;
+    el.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+  }
+
+  function close() {
+    const el = lb();
+    if (!el || el.hidden) return;
+    el.hidden = true;
+    const img = el.querySelector('img');
+    if (img) img.src = '';
+    document.documentElement.style.overflow = '';
+    if (lastFocus instanceof HTMLElement) lastFocus.focus();
+    lastFocus = null;
+  }
+
+  // 事件委托挂 document：View Transitions 换页后监听不失效
+  document.addEventListener('click', (e) => {
+    const t = e.target as Element | null;
+    if (!t) return;
+    if (t.closest('#lightbox')) {
+      close();
+      return;
+    }
+    const img = t.closest('.prose img');
+    // 图片带链接时不拦截（保留原跳转行为）
+    if (img && !img.closest('a')) {
+      e.preventDefault();
+      const el = img as HTMLImageElement;
+      open(el.currentSrc || el.src, el.alt || '');
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+
+  // 换页后保证灯箱处于关闭态（新 DOM 自带 hidden，双保险处理滚动锁）
+  document.addEventListener('astro:after-swap', () => {
+    const el = lb();
+    if (el) el.hidden = true;
+    document.documentElement.style.overflow = '';
+  });
+</script>

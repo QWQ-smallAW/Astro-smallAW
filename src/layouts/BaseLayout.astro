@@ -2,6 +2,7 @@
 import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 import SearchModal from '../components/SearchModal.astro';
+import Lightbox from '../components/Lightbox.astro';
 import Profile from '../components/Profile.astro';
 import { SITE } from '../site.config';
 import { withBase } from '../utils';
@@ -77,6 +78,7 @@ const isActive = (path: string) =>
     </div>
 
     <SearchModal />
+    <Lightbox />
 
     <footer class="site-footer">
       <div class="container">
