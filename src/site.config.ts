@@ -3,7 +3,7 @@ export const SITE = {
   subtitle: '记录、折腾、思考',
   author: 'smallAW',
   signature: '把折腾变成文字，把文字变成沉淀。',
-  description: '一个终端风格的个人博客：写作、标签、归档与全文搜索。',
+  description: 'smallAW 的 stdout —— 漏洞复现、工具折腾、题解与碎碎念，偶尔 404。',
   repo: 'https://github.com/QWQ-smallAW/Astro-smallAW',
   postDir: 'content/blog',
 };
