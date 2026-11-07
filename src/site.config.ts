@@ -11,7 +11,7 @@ export const SITE = {
 // 侧栏社交链接（改成自己的主页地址；QQ 填 wpa.qq.com 临时聊天链接或群链接）
 export const SOCIALS = [
   { name: 'GitHub', url: 'https://github.com/QWQ-smallAW' },
-  { name: 'Bilibili', url: 'https://space.bilibili.com/180357698' },
+  { name: 'Bilibili', url: 'https://space.bilibili.com/1803576984' },
   { name: '知乎', url: 'https://www.zhihu.com/people/smallaw/' },
   // { name: 'QQ', url: 'https://wpa.qq.com/msgrd?v=3&site=qq&menu=yes&uin=10000' },
 ];
