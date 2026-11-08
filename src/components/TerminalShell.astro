@@ -146,17 +146,31 @@ sudo      试试就知道</span>`
       case 'exit':
         close();
         break;
-      case 'sudo':
-        // 裸 sudo 显示真实 usage；带参数才触发彩蛋
+      case 'sudo': {
+        // 裸 sudo 显示真实 usage
         if (!args.length) {
           print(`<span class="dim">usage: sudo command</span>`);
-        } else {
+          break;
+        }
+        // 识别 sudo rm -rf /（含 /*、-fr 等变体）→ 删根彩蛋
+        const [sub, ...rest] = args;
+        const tail = rest.join(' ');
+        const flags = (tail.match(/(^|\s)-[a-z]+/g) ?? []).join('');
+        const targets = tail.replace(/(^|\s)-[a-z]+/g, '').trim();
+        const rootKill =
+          sub === 'rm' && flags.includes('r') && flags.includes('f') &&
+          (targets === '/' || targets === '/*');
+        if (rootKill) {
           print(
             `<span class="err">rm: 无法删除 '/': 权限不足</span>
 <span class="dim">（你以为是 root，其实只是个啥用没有的终端 (¬‿¬)）</span>`
           );
+        } else {
+          // 其余命令：虚拟终端不真执行，一律权限不足
+          print(`<span class="err">sudo: ${esc(args.join(' '))}: 权限不足</span>`);
         }
         break;
+      }
       default:
         print(`bash: ${esc(name)}: command not found <span class="dim">(输入 help 看看有什么)</span>`);
     }
