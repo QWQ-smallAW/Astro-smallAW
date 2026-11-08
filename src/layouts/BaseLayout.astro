@@ -87,7 +87,12 @@ const isActive = (path: string) =>
 
     <footer class="site-footer">
       <div class="container">
-        <span>© {new Date().getFullYear()} {SITE.author}</span>
+        <span>
+          © {new Date().getFullYear()} {SITE.author}
+          <span> · </span>
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+          <span> 协议授权</span>
+        </span>
         <span>
           <a href={withBase('/rss.xml')}>rss</a>
           <span> · </span>
