@@ -27,6 +27,12 @@
   const esc = (s: string) =>
     s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
+  // 属性上下文转义 + https 白名单：第三方 API 返回的 URL 不可信，防属性逃逸注入
+  const safeUrl = (u: unknown): string | null => {
+    if (typeof u !== 'string' || !u.startsWith('https://')) return null;
+    return u.replace(/&/g, '&amp;').replace(/"/g, '%22').replace(/</g, '%3C').replace(/>/g, '%3E');
+  };
+
   function print(html: string) {
     const el = out();
     if (!el) return;
@@ -69,12 +75,16 @@
     try {
       const r = await fetch('https://api.waifu.pics/sfw/waifu');
       const j = await r.json();
-      print(`<img class="tshell-img" src="${j.url}" alt="waifu" loading="lazy">`);
+      const url = safeUrl(j?.url);
+      if (url) print(`<img class="tshell-img" src="${url}" alt="waifu" loading="lazy">`);
+      else throw new Error('bad url');
     } catch {
       try {
         const r2 = await fetch('https://nekos.best/api/v2/waifu');
         const j2 = await r2.json();
-        print(`<img class="tshell-img" src="${j2.results[0].url}" alt="waifu" loading="lazy">`);
+        const url2 = safeUrl(j2?.results?.[0]?.url);
+        if (url2) print(`<img class="tshell-img" src="${url2}" alt="waifu" loading="lazy">`);
+        else throw new Error('bad url');
       } catch {
         print(`<span class="err">网络不好，看板娘失联了 (＞﹏＜)</span>`);
       }
