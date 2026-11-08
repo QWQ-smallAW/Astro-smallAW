@@ -199,6 +199,7 @@ img {
 }
 
 .profile {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -207,6 +208,36 @@ img {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 1.5rem 1.2rem 1.2rem;
+}
+
+/* 「千万别点」按钮：个人卡右下角的小陷阱 */
+.dont-click {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1;
+  padding: 0.28rem 0.5rem;
+  color: var(--fg-faint);
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.65;
+  transition: color 0.2s, border-color 0.2s, opacity 0.2s, transform 0.2s var(--ease);
+}
+.dont-click:hover {
+  color: #f472b6;
+  border-color: #f472b6;
+  opacity: 1;
+  transform: rotate(-2deg) scale(1.06);
+  animation: dont-wobble 0.4s var(--ease) infinite alternate;
+}
+@keyframes dont-wobble {
+  from { transform: rotate(-2deg) scale(1.06); }
+  to { transform: rotate(2deg) scale(1.06); }
 }
 
 .avatar {
@@ -1191,7 +1222,7 @@ img {
 }
 
 /* ============================================================
-   二次元彩蛋层：迷你终端 / 季节粒子 / Konami / 杂项
+   二次元彩蛋层：迷你终端 / 季节粒子 / 千万别点按钮 / 杂项
    ============================================================ */
 
 /* ---------- 迷你终端（quake 式下拉，按 ` 唤起） ---------- */
@@ -1315,7 +1346,7 @@ img {
   z-index: 30;
 }
 
-/* ---------- Konami 粉色风暴 toast ---------- */
+/* ---------- 粉色风暴（「千万别点」按钮触发） ---------- */
 
 .toast {
   position: fixed;
@@ -1333,7 +1364,7 @@ img {
   border-radius: var(--radius);
 }
 
-html.konami {
+html.pink-storm {
   --accent: #f472b6 !important;
   --accent-dim: #be5188 !important;
   --cyan: #f0a3bd !important;
@@ -1363,5 +1394,8 @@ html.konami {
 @media (prefers-reduced-motion: reduce) {
   .tshell {
     transition: none;
+  }
+  .dont-click:hover {
+    animation: none;
   }
 }

@@ -149,39 +149,19 @@ const isActive = (path: string) =>
       reveal();
       document.addEventListener('astro:page-load', reveal);
 
-      // Konami Code：↑↑↓↓←→←→BA → 粉色风暴 5 秒
-      const KONAMI = [
-        'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
-        'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a',
-      ];
-      let kIdx = 0;
-      document.addEventListener('keydown', (e) => {
-        const t = e.target as Element | null;
-        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-        if (key === KONAMI[kIdx]) {
-          kIdx++;
-          if (kIdx === KONAMI.length) {
-            kIdx = 0;
-            konami();
-          }
-        } else {
-          kIdx = key === KONAMI[0] ? 1 : 0;
-        }
-      });
-
-      function konami() {
-        document.documentElement.classList.add('konami');
+      // 粉色风暴：由 Profile 卡片的「千万别点」按钮触发（document 派发 pink-storm 事件）
+      document.addEventListener('pink-storm', () => {
+        document.documentElement.classList.add('pink-storm');
         const toast = document.getElementById('toast');
         if (toast) {
-          toast.textContent = '☆ 粉色风暴！上上下下左右BA —— 5 秒后恢复 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧';
+          toast.textContent = '☆ 都说了千万别点……粉色风暴 5 秒，后悔去吧 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧';
           toast.hidden = false;
         }
         setTimeout(() => {
-          document.documentElement.classList.remove('konami');
+          document.documentElement.classList.remove('pink-storm');
           if (toast) toast.hidden = true;
         }, 5000);
-      }
+      });
     </script>
   </body>
 </html>
