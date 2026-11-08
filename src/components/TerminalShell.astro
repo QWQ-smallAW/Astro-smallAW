@@ -167,7 +167,10 @@ sudo      试试就知道</span>`
           );
         } else {
           // 其余命令：虚拟终端不真执行，一律权限不足
-          print(`<span class="err">sudo: ${esc(args.join(' '))}: 权限不足</span>`);
+          print(
+            `<span class="err">sudo: ${esc(args.join(' '))}: 权限不足</span>
+<span class="dim">（你以为是 root，其实只是个啥用没有的终端 (¬‿¬)）</span>`
+          );
         }
         break;
       }
