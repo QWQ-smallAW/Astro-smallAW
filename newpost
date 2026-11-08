@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# 自动创建文章：./newpost "文章标题" [英文slug]
+# 等价于 npm run newpost -- "文章标题" [英文slug]
+set -euo pipefail
+cd "$(dirname "$0")"
+
+exec node scripts/newpost.mjs "$@"
