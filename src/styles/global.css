@@ -1364,10 +1364,54 @@ img {
   border-radius: var(--radius);
 }
 
+/* 暗色：深樱粉黑——底色压深、粉只留给强调，保持终端对比度 */
 html.pink-storm {
-  --accent: #f472b6 !important;
-  --accent-dim: #be5188 !important;
-  --cyan: #f0a3bd !important;
+  --bg: #140a11;
+  --bg-elevated: #1b0f18;
+  --bg-inset: #0e060b;
+  --border: #341c29;
+  --border-strong: #4c293b;
+
+  --fg: #ecd9e2;
+  --fg-muted: #b18ea0;
+  --fg-faint: #7d5e6f;
+
+  --accent: #ec4899;
+  --accent-dim: #a13067;
+  --accent-ink: #140a11;
+
+  --cyan: #f0a3bd;
+  --amber: #fda4af;
+  --red: #fb7185;
+}
+
+/* 亮色：樱花粉纸面 */
+html.pink-storm[data-theme='light'] {
+  --bg: #fdf4f8;
+  --bg-elevated: #f9eaf1;
+  --bg-inset: #f4e3ec;
+  --border: #ecd2de;
+  --border-strong: #d9b2c5;
+
+  --fg: #3c2a33;
+  --fg-muted: #7a5a68;
+  --fg-faint: #b094a1;
+
+  --accent: #be3a7d;
+  --accent-dim: #f0c4d9;
+  --accent-ink: #fdf4f8;
+
+  --cyan: #9d2f66;
+  --amber: #b4556b;
+  --red: #b91c4c;
+}
+
+/* 层次分配：名字最亮（强调色）→ 签名/正文粉灰 → 次要信息淡粉 */
+html.pink-storm .profile-name {
+  color: var(--accent);
+}
+html.pink-storm .avatar {
+  border-color: var(--accent-dim);
 }
 
 /* ---------- 杂项 ---------- */
