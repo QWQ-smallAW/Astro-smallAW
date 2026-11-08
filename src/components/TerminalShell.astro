@@ -1,9 +1,12 @@
 ---
 // 迷你终端彩蛋：按反引号 ` 或点击 logo 的 $ 提示符唤起（quake 式下拉）
 // 命令：help / neofetch / whoami / ls / waifu / particles / date / echo / clear / exit / sudo
+import { getCollection } from 'astro:content';
+// 构建期统计已发布文章数（排除 draft），经 data 属性传给脚本
+const postCount = (await getCollection('blog', ({ data }) => !data.draft)).length;
 ---
 
-<div class="tshell" id="tshell" aria-hidden="true">
+<div class="tshell" id="tshell" data-post-count={postCount} aria-hidden="true">
   <div class="tshell-bar">
     <span class="tshell-dots" aria-hidden="true"><i></i><i></i><i></i></span>
     <span class="tshell-title">smallaw@term.log — bash</span>
@@ -59,13 +62,15 @@
   }
 
   function neofetch() {
+    // 文章数来自构建期统计（data-post-count），实时查询避免 View Transitions 缓存尸体
+    const n = shell()?.dataset.postCount ?? '?';
     print(`<pre>      smallaw@term.log
       ─────────────────
       OS        term.log (Astro 7.4.1)
       Host      Cloudflare Pages
       Shell     bashish 0.1 (view-transitions)
       Theme     terminal [dark/light]
-      Articles  5 posts, ∞ WAIFUs
+      Articles  ${n} posts, ∞ WAIFUs
       CPU       smallAW 的大脑 @ 3.5GHz (单核)
       Uptime    折腾中，从未宕机</pre>`);
   }
