@@ -147,10 +147,15 @@ sudo      试试就知道</span>`
         close();
         break;
       case 'sudo':
-        print(
-          `<span class="err">rm: 无法删除 '/': 权限不足</span>
-<span class="dim">（你以为是 root，其实只是个脚本小子 (¬‿¬)）</span>`
-        );
+        // 裸 sudo 显示真实 usage；带参数才触发彩蛋
+        if (!args.length) {
+          print(`<span class="dim">usage: sudo command</span>`);
+        } else {
+          print(
+            `<span class="err">rm: 无法删除 '/': 权限不足</span>
+<span class="dim">（你以为是 root，其实只是个啥用没有的终端 (¬‿¬)）</span>`
+          );
+        }
         break;
       default:
         print(`bash: ${esc(name)}: command not found <span class="dim">(输入 help 看看有什么)</span>`);
