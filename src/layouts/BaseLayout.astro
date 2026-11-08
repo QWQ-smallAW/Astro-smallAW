@@ -3,6 +3,8 @@ import { ClientRouter } from 'astro:transitions';
 import '../styles/global.css';
 import SearchModal from '../components/SearchModal.astro';
 import Lightbox from '../components/Lightbox.astro';
+import TerminalShell from '../components/TerminalShell.astro';
+import Particles from '../components/Particles.astro';
 import Profile from '../components/Profile.astro';
 import { SITE } from '../site.config';
 import { withBase } from '../utils';
@@ -79,6 +81,9 @@ const isActive = (path: string) =>
 
     <SearchModal />
     <Lightbox />
+    <TerminalShell />
+    <Particles />
+    <div class="toast" id="toast" hidden></div>
 
     <footer class="site-footer">
       <div class="container">
@@ -87,8 +92,11 @@ const isActive = (path: string) =>
           <a href={withBase('/rss.xml')}>rss</a>
           <span> · </span>
           <a href={SITE.repo} target="_blank" rel="noopener">source</a>
-          <span> · powered by astro</span>
+          <span> · built with ♡ and 3 a.m.</span>
         </span>
+      </div>
+      <div class="container moe-line">
+        <a href="https://moe.icu/" target="_blank" rel="noopener">萌ICP备202647号-1</a>
       </div>
     </footer>
 
@@ -140,6 +148,40 @@ const isActive = (path: string) =>
       };
       reveal();
       document.addEventListener('astro:page-load', reveal);
+
+      // Konami Code：↑↑↓↓←→←→BA → 粉色风暴 5 秒
+      const KONAMI = [
+        'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a',
+      ];
+      let kIdx = 0;
+      document.addEventListener('keydown', (e) => {
+        const t = e.target as Element | null;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+        if (key === KONAMI[kIdx]) {
+          kIdx++;
+          if (kIdx === KONAMI.length) {
+            kIdx = 0;
+            konami();
+          }
+        } else {
+          kIdx = key === KONAMI[0] ? 1 : 0;
+        }
+      });
+
+      function konami() {
+        document.documentElement.classList.add('konami');
+        const toast = document.getElementById('toast');
+        if (toast) {
+          toast.textContent = '☆ 粉色风暴！上上下下左右BA —— 5 秒后恢复 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧';
+          toast.hidden = false;
+        }
+        setTimeout(() => {
+          document.documentElement.classList.remove('konami');
+          if (toast) toast.hidden = true;
+        }, 5000);
+      }
     </script>
   </body>
 </html>

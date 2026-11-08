@@ -40,7 +40,7 @@
         await pagefind.search('');
       } catch {
         const s = status();
-        if (s) s.textContent = '搜索索引未找到——索引在 npm run build 时生成，请先构建。';
+        if (s) s.textContent = '搜索索引未找到——先 npm run build 试试 (´･_･`)';
       }
     })();
   }
@@ -135,7 +135,7 @@
       return;
     }
     const res = await pagefind.search(query);
-    s.textContent = res.results.length ? `找到 ${res.results.length} 条结果` : `没有与 "${query}" 相关的结果`;
+    s.textContent = res.results.length ? `找到 ${res.results.length} 条结果` : `没有与 "${query}" 相关的结果 (￣▽￣)"`;
     for (const r of res.results.slice(0, 20)) {
       const data = await r.data();
       const item = document.createElement('article');

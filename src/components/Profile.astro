@@ -5,7 +5,9 @@ import { withBase } from '../utils';
 ---
 
 <div class="profile">
-  <img class="avatar" src={withBase('/avatar.jpg')} alt="作者头像" width="72" height="72" />
+  <span class="avatar-wrap">
+    <img class="avatar" src={withBase('/avatar.jpg')} alt="作者头像" width="72" height="72" />
+  </span>
   <h2 class="profile-name">{SITE.author}</h2>
   <p class="profile-sig">{SITE.signature}</p>
   <nav class="socials" aria-label="社交链接">

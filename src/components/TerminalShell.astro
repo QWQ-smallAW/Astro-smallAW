@@ -1,0 +1,196 @@
+---
+// 迷你终端彩蛋：按反引号 ` 或点击 logo 的 $ 提示符唤起（quake 式下拉）
+// 命令：help / neofetch / whoami / ls / waifu / particles / date / echo / clear / exit / sudo
+---
+
+<div class="tshell" id="tshell" aria-hidden="true">
+  <div class="tshell-bar">
+    <span class="tshell-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="tshell-title">smallaw@term.log — bash</span>
+    <button class="tshell-close" id="tshell-close" type="button" aria-label="关闭终端">×</button>
+  </div>
+  <div class="tshell-out" id="tshell-out"></div>
+  <div class="tshell-line">
+    <span class="tshell-prompt"><span class="user">smallaw</span>@term.log:~$</span>
+    <input id="tshell-in" type="text" autocomplete="off" spellcheck="false" aria-label="输入终端命令" />
+  </div>
+</div>
+
+<script>
+  const shell = () => document.getElementById('tshell');
+  const out = () => document.getElementById('tshell-out');
+  const input = () => document.getElementById('tshell-in') as HTMLInputElement | null;
+
+  const history: string[] = [];
+  let histIdx = -1;
+
+  const esc = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  function print(html: string) {
+    const el = out();
+    if (!el) return;
+    el.insertAdjacentHTML('beforeend', `<div class="tshell-row">${html}</div>`);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function open() {
+    const el = shell();
+    if (!el || el.classList.contains('open')) return;
+    el.classList.add('open');
+    el.setAttribute('aria-hidden', 'false');
+    if (!out()?.children.length) {
+      print(`<span class="dim">term.log shell — 输入 <b>help</b> 查看可用命令 (´∀｀)</span>`);
+    }
+    input()?.focus();
+  }
+
+  function close() {
+    const el = shell();
+    if (!el) return;
+    el.classList.remove('open');
+    el.setAttribute('aria-hidden', 'true');
+  }
+
+  function neofetch() {
+    print(`<pre>      smallaw@term.log
+      ─────────────────
+      OS        term.log (Astro 7.4.1)
+      Host      Cloudflare Pages
+      Shell     bashish 0.1 (view-transitions)
+      Theme     terminal [dark/light]
+      Articles  5 posts, ∞ WAIFUs
+      CPU       smallAW 的大脑 @ 3.5GHz (单核)
+      Uptime    折腾中，从未宕机</pre>`);
+  }
+
+  async function waifu() {
+    print(`<span class="dim">fetching… (๑•̀ㅂ•́)و</span>`);
+    try {
+      const r = await fetch('https://api.waifu.pics/sfw/waifu');
+      const j = await r.json();
+      print(`<img class="tshell-img" src="${j.url}" alt="waifu" loading="lazy">`);
+    } catch {
+      try {
+        const r2 = await fetch('https://nekos.best/api/v2/waifu');
+        const j2 = await r2.json();
+        print(`<img class="tshell-img" src="${j2.results[0].url}" alt="waifu" loading="lazy">`);
+      } catch {
+        print(`<span class="err">网络不好，看板娘失联了 (＞﹏＜)</span>`);
+      }
+    }
+  }
+
+  function run(raw: string) {
+    const cmd = raw.trim();
+    if (!cmd) return;
+    print(`<span class="user">smallaw</span>@term.log:~$ <span class="cmd">${esc(cmd)}</span>`);
+    history.push(cmd);
+    histIdx = history.length;
+
+    const [name, ...args] = cmd.split(/\s+/);
+    switch (name) {
+      case 'help':
+        print(
+          `<span class="dim">help      这份说明书
+neofetch  系统信息（博客版）
+whoami    我是谁
+ls        列一下目录
+waifu     随机二次元图 (๑•̀ㅂ•́)و
+particles 樱花/雪粒子开关：particles on|off
+date      现在几点了
+echo      复读机
+clear     清屏
+exit      关掉这个终端
+sudo      试试就知道</span>`
+        );
+        break;
+      case 'neofetch':
+        neofetch();
+        break;
+      case 'whoami':
+        print(`smallAW —— 网络安全脚本小子 / OI 残党 / 二次元 (๑˃̵ᴗ˂̵)و`);
+        break;
+      case 'ls':
+        print(`content/  src/  public/  dreams/  waifus/  <span class="dim">.config</span>`);
+        break;
+      case 'waifu':
+        waifu();
+        break;
+      case 'particles': {
+        const on = args[0] !== 'off';
+        localStorage.setItem('particles', on ? 'on' : 'off');
+        document.dispatchEvent(new CustomEvent('particles', { detail: { on } }));
+        print(on ? `<span class="ok">粒子已开启 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧</span>` : `粒子已关闭 (￣▽￣)`);
+        break;
+      }
+      case 'date':
+        print(new Date().toString());
+        break;
+      case 'echo':
+        print(esc(args.join(' ') || ' '));
+        break;
+      case 'clear':
+        if (out()) out()!.innerHTML = '';
+        break;
+      case 'exit':
+        close();
+        break;
+      case 'sudo':
+        print(
+          `<span class="err">rm: 无法删除 '/': 权限不足</span>
+<span class="dim">（你以为是 root，其实只是个脚本小子 (¬‿¬)）</span>`
+        );
+        break;
+      default:
+        print(`bash: ${esc(name)}: command not found <span class="dim">(输入 help 看看有什么)</span>`);
+    }
+  }
+
+  // 事件委托挂 document —— View Transitions 换页后依然可用
+  document.addEventListener('click', (e) => {
+    const t = e.target as Element | null;
+    if (!t) return;
+    if (t.closest('#tshell-close')) {
+      close();
+      return;
+    }
+    if (t.closest('.site-logo .prompt-char')) {
+      e.preventDefault();
+      open();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target as Element | null;
+    const editable =
+      t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+
+    if (e.key === '`' && !editable) {
+      e.preventDefault();
+      shell()?.classList.contains('open') ? close() : open();
+      return;
+    }
+    if (e.key === 'Escape') {
+      close();
+      return;
+    }
+    if (t === input()) {
+      if (e.key === 'Enter') {
+        const v = input()!.value;
+        input()!.value = '';
+        run(v);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (histIdx > 0) input()!.value = history[--histIdx];
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (histIdx < history.length - 1) input()!.value = history[++histIdx];
+        else {
+          histIdx = history.length;
+          input()!.value = '';
+        }
+      }
+    }
+  });
+</script>

@@ -154,6 +154,15 @@ draft: false
 
 ---
 
+## 5.5 彩蛋（给愿意探索的访客）
+
+- **迷你终端**：任意页面按反引号 **`**，或点击左上角 logo 的 `$` 符号——quake 式下拉终端，支持 `help` / `neofetch` / `whoami` / `waifu`（随机二次元图）/ `particles on|off`（樱花雪粒子开关）/ `sudo` 等命令，`↑` 翻历史
+- **季节粒子**：3-5 月飘樱花、11-1 月飘雪（自动按月份切换），尊重系统"减少动态效果"设置
+- **Konami Code**：键盘输入 ↑↑↓↓←→←→BA，触发 5 秒粉色风暴
+- 页脚的「萌ICP备xxxx号」是二次元博客圈的趣味传统，指向 [moe.icu](https://moe.icu/)，不是真备案；编号在 `src/layouts/BaseLayout.astro` 的 `moe-line` 处修改
+
+---
+
 ## 6. 评论（Twikoo）
 
 ### 开启三步

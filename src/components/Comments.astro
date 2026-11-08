@@ -9,6 +9,7 @@ const enabled = Boolean(TWIKOO_ENVID);
     <section class="comments" data-env-id={TWIKOO_ENVID}>
       <div class="section-head">$ tail -f ./comments.log</div>
       <div id="tcomment" />
+      <div class="comments-loading" id="comments-loading">(っ˘ω˘ς) 正在唤醒评论区…</div>
     </section>
   ) : import.meta.env.DEV ? (
     <p class="search-empty">twikoo 评论未启用：在 src/site.config.ts 的 TWIKOO_ENVID 填入后端地址。</p>
@@ -44,6 +45,8 @@ const enabled = Boolean(TWIKOO_ENVID);
   function loadScript(idx, onload, onerror) {
     if (idx >= CDNS.length) {
       console.error('[twikoo] 所有 CDN 均加载失败，检查网络或更换版本');
+      const loading = document.getElementById('comments-loading');
+      if (loading) loading.textContent = "(´･_･`) 评论加载失败，检查网络后刷新试试";
       return;
     }
     if (document.getElementById('twikoo-js')) {
@@ -93,6 +96,7 @@ const enabled = Boolean(TWIKOO_ENVID);
       if (!(window as any).twikoo) return;
       if (inited.has(el)) return;
       inited.add(el);
+      document.getElementById('comments-loading')?.remove();
       try {
         (window as any).twikoo.init({ envId: ENVID, el: '#tcomment' });
       } catch (err) {
